@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,7 +13,7 @@ contract MerkleAirdrop is Ownable {
 
     mapping(address => bool) public claimed;
 
-    constructor(address _token, address _bayc, bytes32 _merkleRoot) {
+    constructor(address _token, address _bayc, bytes32 _merkleRoot)Ownable(msg.sender) {
         token = IERC20(_token);
         bayc = IERC721(_bayc);
         merkleRoot = _merkleRoot;
@@ -21,8 +21,8 @@ contract MerkleAirdrop is Ownable {
 
     function claim(bytes32[] calldata proof) external {
         require(!claimed[msg.sender], "Already claimed");
-        require(IERC721(bayc).balanceOf[msg.sender] > 1,"Nawa for U ooo!");
-        require(isEligible(msg.sender, proof), "Not eligible");
+        require(IERC721(bayc).balanceOf(msg.sender) > 1,"Nawa for U ooo!");
+        require(isEligible(msg.sender, proof), "Hmmm, eligible ko,eligible ni! Mtchhheeeww");
 
         claimed[msg.sender] = true;
 
@@ -33,6 +33,6 @@ contract MerkleAirdrop is Ownable {
 
     function isEligible(address account, bytes32[] calldata proof) internal view returns (bool) {
         bytes32 leaf = keccak256(abi.encodePacked(account));
-        return MerkleProof.verify(proof, merkleRoot, leaf) && bayc.balanceOf(account) > 0;
+        return MerkleProof.verify(proof, merkleRoot, leaf);
     }
 }
